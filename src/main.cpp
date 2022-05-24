@@ -2171,11 +2171,17 @@ int64_t GetBlockValue(int nHeight)
         nSubsidy = 50 * COIN;
     } else if (nHeight >= SPORK_20_REWARD_HALVING_START_DEFAULT && nHeight < SPORK_21_SUPERBLOCK_START_DEFAULT) {
         nSubsidy = GetHalvingReward(nHeight, SPORK_20_REWARD_VALUE) * COIN;
-    } else if (nHeight >= SPORK_21_SUPERBLOCK_START_DEFAULT) {
+    } else if (nHeight >= SPORK_21_SUPERBLOCK_START_DEFAULT && nHeight < SPORK_22_SUPERBLOCK_START_DEFAULT) {
         if (nHeight % SPORK_21_SUPERBLOCK_PERIOD_DEFAULT == 0) {
-            nSubsidy = GetSuperblockHalvingReward(nHeight) * COIN;
+            nSubsidy = GetSuperblockHalvingReward(nHeight, SPORK_21_SUPERBLOCK_REWARD_VALUE) * COIN;
         } else {
             nSubsidy = GetHalvingReward(nHeight, SPORK_21_REWARD_VALUE) * COIN;
+        }
+    } else if (nHeight >= SPORK_22_SUPERBLOCK_START_DEFAULT) {
+        if (nHeight % SPORK_21_SUPERBLOCK_PERIOD_DEFAULT == 0) {
+            nSubsidy = GetSuperblockHalvingReward(nHeight, SPORK_22_SUPERBLOCK_REWARD_VALUE) * COIN;
+        } else {
+            nSubsidy = GetHalvingReward(nHeight, SPORK_22_REWARD_VALUE) * COIN;
         }
     } else{
         nSubsidy = 0.1 * COIN;
@@ -2219,11 +2225,15 @@ double GetHalvingReward(int nHeight, double reward)
     return reward;
 }
 
-double GetSuperblockHalvingReward(int nHeight) 
+double GetSuperblockHalvingReward(int nHeight, double reward) 
 {
-    double reward = 300000;
+    int period = 0;
+    if (nHeight >= SPORK_21_SUPERBLOCK_START_DEFAULT && nHeight < SPORK_22_SUPERBLOCK_START_DEFAULT) {
+        period = (nHeight - SPORK_21_SUPERBLOCK_START_DEFAULT) / SPORK_20_REWARD_HALVING_PERIOD_DEFAULT;
+    } else{
+        period = (nHeight - SPORK_22_SUPERBLOCK_START_DEFAULT) / SPORK_20_REWARD_HALVING_PERIOD_DEFAULT;
+    }
 
-    const int period = (nHeight - SPORK_21_SUPERBLOCK_START_DEFAULT) / SPORK_20_REWARD_HALVING_PERIOD_DEFAULT;
     if (period > 0) {
         reward /= period + 1;
     }
