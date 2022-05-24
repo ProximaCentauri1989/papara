@@ -105,6 +105,18 @@ BOOST_AUTO_TEST_CASE(subsidy_limit_test)
         /* Standard reward of 1000 or 300000 coin after 21th spork and halving */
         CAmount nSubsidy = GetBlockValue(nHeight);
         if (nHeight % SPORK_21_SUPERBLOCK_PERIOD_DEFAULT == 0) {
+            BOOST_CHECK(nSubsidy == 300000 * COIN);
+        }else{
+            BOOST_CHECK(nSubsidy == 1000 * COIN);
+        }
+
+        nSum += nSubsidy;
+    }
+
+    for (int nHeight = SPORK_22_SUPERBLOCK_START_DEFAULT; nHeight < SPORK_22_SUPERBLOCK_START_DEFAULT+SPORK_20_REWARD_HALVING_PERIOD_DEFAULT; nHeight += 1) {
+        /* Standard reward of 1000000 or 30000000 coin after 22th spork and halving */
+        CAmount nSubsidy = GetBlockValue(nHeight);
+        if (nHeight % SPORK_21_SUPERBLOCK_PERIOD_DEFAULT == 0) {
             BOOST_CHECK(nSubsidy == 30000000 * COIN);
         }else{
             BOOST_CHECK(nSubsidy == 1000000 * COIN);
@@ -127,16 +139,22 @@ BOOST_AUTO_TEST_CASE(halving_test)
     /* Cases when 21 spork and halving are reached */
     BOOST_CHECK(GetHalvingReward(1578902 + 525600, SPORK_21_REWARD_VALUE) == (SPORK_21_REWARD_VALUE / 2)); // 
     BOOST_CHECK(GetHalvingReward(1578902 + 525600 + 525600 + 525600 + 525600, SPORK_21_REWARD_VALUE) == (SPORK_21_REWARD_VALUE / 5));
+    /* Cases when 22 spork and halving are reached */
+    BOOST_CHECK(GetHalvingReward(SPORK_22_SUPERBLOCK_START_DEFAULT, SPORK_22_REWARD_VALUE) == SPORK_22_REWARD_VALUE);
+    BOOST_CHECK(GetHalvingReward(SPORK_22_SUPERBLOCK_START_DEFAULT + 525600, SPORK_22_REWARD_VALUE) == SPORK_22_REWARD_VALUE / 2);
 }
 
 BOOST_AUTO_TEST_CASE(superblock_halving_test)
 {
-    double standartReward = 30000000;
+    double standartReward = 300000;
+    double extendedReward = 30000000;
 
-    BOOST_CHECK(GetSuperblockHalvingReward(0) == standartReward);
-    BOOST_CHECK(GetSuperblockHalvingReward( (SPORK_21_SUPERBLOCK_START_DEFAULT / SPORK_21_SUPERBLOCK_PERIOD_DEFAULT + 1) * SPORK_21_SUPERBLOCK_PERIOD_DEFAULT) == standartReward);
-    BOOST_CHECK(GetSuperblockHalvingReward(((SPORK_21_SUPERBLOCK_START_DEFAULT + 525600) / SPORK_21_SUPERBLOCK_PERIOD_DEFAULT + 1) * SPORK_21_SUPERBLOCK_PERIOD_DEFAULT) == (standartReward / 2));
-    BOOST_CHECK(GetSuperblockHalvingReward(((SPORK_21_SUPERBLOCK_START_DEFAULT + 525600 * 4) / SPORK_21_SUPERBLOCK_PERIOD_DEFAULT + 1) * SPORK_21_SUPERBLOCK_PERIOD_DEFAULT) == (standartReward / 5));
+    BOOST_CHECK(GetSuperblockHalvingReward(0, standartReward) == standartReward);
+    BOOST_CHECK(GetSuperblockHalvingReward( (SPORK_21_SUPERBLOCK_START_DEFAULT / SPORK_21_SUPERBLOCK_PERIOD_DEFAULT + 1) * SPORK_21_SUPERBLOCK_PERIOD_DEFAULT, standartReward) == standartReward);
+    BOOST_CHECK(GetSuperblockHalvingReward(((SPORK_21_SUPERBLOCK_START_DEFAULT + 525600) / SPORK_21_SUPERBLOCK_PERIOD_DEFAULT + 1) * SPORK_21_SUPERBLOCK_PERIOD_DEFAULT, standartReward) == (standartReward / 2));
+    BOOST_CHECK(GetSuperblockHalvingReward(((SPORK_21_SUPERBLOCK_START_DEFAULT + 525600 * 4) / SPORK_21_SUPERBLOCK_PERIOD_DEFAULT + 1) * SPORK_21_SUPERBLOCK_PERIOD_DEFAULT, standartReward) == (standartReward / 5));
+    BOOST_CHECK(GetSuperblockHalvingReward( (SPORK_22_SUPERBLOCK_START_DEFAULT / SPORK_21_SUPERBLOCK_PERIOD_DEFAULT + 1) * SPORK_21_SUPERBLOCK_PERIOD_DEFAULT, standartReward) == extendedReward);
+    BOOST_CHECK(GetSuperblockHalvingReward(((SPORK_22_SUPERBLOCK_START_DEFAULT + 525600) / SPORK_21_SUPERBLOCK_PERIOD_DEFAULT + 1) * SPORK_21_SUPERBLOCK_PERIOD_DEFAULT, standartReward) == (extendedReward / 2));
 }
 
 BOOST_AUTO_TEST_CASE(charity_address_valid_test)

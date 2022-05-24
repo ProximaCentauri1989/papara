@@ -243,7 +243,7 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue, int nMasternodeCou
 int64_t GetCharityPayment(int nHeight, int64_t blockValue);
 bool GetCharityPayee(int nHeight, CScript& payee);
 double GetHalvingReward(int nHeight, double reward);
-double GetSuperblockHalvingReward(int nHeight);
+double GetSuperblockHalvingReward(int nHeight, double reward);
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader* pblock, bool fProofOfStake);
 
 bool ActivateBestChain(CValidationState& state, CBlock* pblock = NULL, bool fAlreadyChecked = false);
